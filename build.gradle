@@ -21,6 +21,7 @@ dependencies {
     testImplementation 'io.qameta.allure:allure-selenide:2.13.6'
     testImplementation 'io.qameta.allure:allure-assertj:2.13.6'
     testImplementation 'io.qameta.allure:allure-commandline:2.13.6'
+    implementation 'org.postgresql:postgresql:42.3.3'
 
     runtimeOnly 'org.aspectj:aspectjweaver:1.9.7'
 }
