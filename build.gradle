@@ -15,15 +15,6 @@ subprojects {
         useJUnitPlatform()
     }
 
-    tasks.withType(Test) {
-//        systemProperty "user.dir",projectDir.absolutePath
-//
-//        System.properties.forEach((k,v)->{
-//            if(!systemProperties.containsKey(k))
-//                systemProperties.put(k.toString(),v)
-//        })
-    }
-
     tasks.withType(JavaCompile) {
         options.with {
             encoding = 'UTF-8'
