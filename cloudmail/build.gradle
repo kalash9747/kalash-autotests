@@ -1,0 +1,32 @@
+plugins {
+    id "io.qameta.allure"
+}
+
+allure {
+    autoconfigure = true
+    version = '2.15.0'
+    aspectjweaver = true
+    aspectjVersion = '1.9.8.M1'
+    allureJavaVersion = '2.15.0'
+    configuration = "testImplementation"
+    useJUnit5{version = '2.15.0' }
+}
+
+dependencies {
+    implementation project(':util')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
+    testImplementation 'com.codeborne:selenide:6.3.5'
+
+    testImplementation 'io.qameta.allure:allure-junit5:2.15.0'
+    implementation 'io.qameta.allure:allure-java-commons:2.15.0'
+    testImplementation 'io.qameta.allure:allure-selenide:2.15.0'
+    testImplementation 'io.qameta.allure:allure-assertj:2.15.0'
+    testImplementation 'io.qameta.allure:allure-commandline:2.15.0'
+    implementation 'org.postgresql:postgresql:42.3.3'
+    testRuntimeOnly("com.browserup:browserup-proxy-core:2.1.1")
+    runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
+}
+

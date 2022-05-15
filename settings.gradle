@@ -1,2 +1,10 @@
-rootProject.name = 'kalash-autotests'
+dependencyResolutionManagement{
+    repositories{
+       mavenCentral()
+    }
+}
 
+rootProject.name = 'kalash-autotests'
+include 'perf'
+include 'util'
+include 'cloudmail'

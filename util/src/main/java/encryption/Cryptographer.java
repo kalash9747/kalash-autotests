@@ -1,9 +1,8 @@
-package util;
+package encryption;
 
 import java.util.Base64;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static util.MailUserRole.admin;
 
 /**
  * Класс шифровальщик
