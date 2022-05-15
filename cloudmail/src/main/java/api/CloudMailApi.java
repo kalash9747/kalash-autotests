@@ -10,6 +10,9 @@ import java.util.Optional;
 
 import static io.qameta.allure.Allure.step;
 
+/**
+ * Класс для работы с Api CloudMail
+ */
 public class CloudMailApi {
     private final BaseHttpMethods base = new BaseHttpMethods();
     private String baseUri;
