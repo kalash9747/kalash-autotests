@@ -14,6 +14,9 @@ public class CloudMailApi {
     private final BaseHttpMethods base = new BaseHttpMethods();
     private String baseUri;
 
+    /**
+     * Авторизоваться в cloud.mail.ru
+     */
     public HttpResponse<String> login(User user) {
         return step("Авторизоваться под пользователем " + user.getLogin(), () -> {
             baseUri = user.getUrl();
@@ -24,6 +27,9 @@ public class CloudMailApi {
         });
     }
 
+    /**
+     * Получает токен act, для подстановки в тело запроса авторизации
+     */
     private String getActToken() {
         base.get(URI.create("https://mail.ru/"));
         Optional<HttpCookie> act = base

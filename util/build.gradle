@@ -1,3 +1,4 @@
 dependencies {
-
+    implementation 'io.qameta.allure:allure-java-commons:2.15.0'
+    runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
 }

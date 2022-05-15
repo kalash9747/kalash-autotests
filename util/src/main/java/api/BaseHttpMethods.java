@@ -69,9 +69,4 @@ public class BaseHttpMethods {
     public  HttpResponse<String> post(URI uri, String body){
         return post(uri, body, (String[]) null);
     }
-
-    public static void main(String[] args)  {
-
-    }
-
 }
