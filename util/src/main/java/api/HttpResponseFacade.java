@@ -8,12 +8,12 @@ import java.net.http.HttpResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Класс обертка для упрощения работы с HttpResponse
+ * Фасад для упрощения работы с HttpResponse
  */
-public class HttpResponseDecorator {
+public class HttpResponseFacade {
     private final HttpResponse<String> response;
 
-    public HttpResponseDecorator(HttpResponse<String> response) {
+    public HttpResponseFacade(HttpResponse<String> response) {
         this.response = response;
     }
 
@@ -27,7 +27,7 @@ public class HttpResponseDecorator {
     /**
      * Проверяет соответствие статус-кода ожидаемому
      */
-    public HttpResponseDecorator shouldBeStatusCode(int expectedStatusCode) {
+    public HttpResponseFacade shouldBeStatusCode(int expectedStatusCode) {
         assertEquals(expectedStatusCode, response.statusCode(),
                 "Статус-код ответа не соответствует ожидаемому");
         return this;

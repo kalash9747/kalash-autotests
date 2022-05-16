@@ -23,9 +23,9 @@ public class BaseHttpMethods {
     /**
      * Отправить запрос
      */
-    public HttpResponseDecorator send(HttpRequest request) {
+    public HttpResponseFacade send(HttpRequest request) {
         try {
-            return new HttpResponseDecorator(getHttpClient().send(request, BodyHandlers.ofString()));
+            return new HttpResponseFacade(getHttpClient().send(request, BodyHandlers.ofString()));
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             System.out.println("Не удалось отправить запрос");
@@ -55,14 +55,14 @@ public class BaseHttpMethods {
     /**
      * Отправить GET запрос без заголовков
      */
-    public HttpResponseDecorator get(URI uri) {
+    public HttpResponseFacade get(URI uri) {
         return get(uri, (String[]) null);
     }
 
     /**
      * Отправить GET запрос
      */
-    public HttpResponseDecorator get(URI uri, String... headers) {
+    public HttpResponseFacade get(URI uri, String... headers) {
         HttpRequest.Builder builder = newBuilder(uri);
         return send(headers == null ? builder.build() : builder.headers(headers).build());
     }
@@ -70,7 +70,7 @@ public class BaseHttpMethods {
     /**
      * Отправить POST запрос
      */
-    public HttpResponseDecorator post(URI uri, String body, String... headers) {
+    public HttpResponseFacade post(URI uri, String body, String... headers) {
         HttpRequest.Builder builder = newBuilder(uri).POST(ofString(body));
         return send(headers == null ? builder.build() : builder.headers(headers).build());
     }
@@ -78,7 +78,7 @@ public class BaseHttpMethods {
     /**
      * Отправить POST запрос без заголовков
      */
-    public HttpResponseDecorator post(URI uri, String body) {
+    public HttpResponseFacade post(URI uri, String body) {
         return post(uri, body, (String[]) null);
     }
 }

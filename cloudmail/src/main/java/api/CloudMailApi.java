@@ -22,14 +22,14 @@ public class CloudMailApi {
     /**
      * Авторизоваться в cloud.mail.ru
      */
-    public HttpResponseDecorator login(User user) {
+    public HttpResponseFacade login(User user) {
         return step("Авторизоваться под пользователем " + user.getLogin(), () -> {
             baseUri = user.getUrl();
             URI authUri = URI.create("https://auth.mail.ru/cgi-bin/auth");
             String authBody = String.format("username=%s&Login=%s&password=%s&Password=%s&saveauth=1&act_token=%s&page=%s",
                     user.getLogin(), user.getLogin(), user.getPassword(), user.getPassword(), getActToken(), user.getUrl());
 
-            HttpResponseDecorator response = base.post(authUri, authBody)
+            HttpResponseFacade response = base.post(authUri, authBody)
                     .shouldBeStatusCode(200);
             csrfToken = getCsrfTokenFromBody(response.getBody());
             return response;
@@ -37,7 +37,7 @@ public class CloudMailApi {
     }
 
     @Step("Отправить запрос api/v2/feed")
-    public HttpResponseDecorator feed() {
+    public HttpResponseFacade feed() {
         return base.get(URI.create(baseUri + "/api/v2/feed"),
                 "X-CSRF-Token", csrfToken);
     }
