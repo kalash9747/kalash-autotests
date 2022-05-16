@@ -23,5 +23,10 @@ dependencies {
 
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
+
+    implementation 'com.codeborne:selenide:6.3.5'
+    implementation 'io.qameta.allure:allure-selenide:2.15.0'
+    testRuntimeOnly("com.browserup:browserup-proxy-core:2.1.1")
+
 }
 
