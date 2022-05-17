@@ -1,8 +1,10 @@
+import static Deps.*
+
 dependencies {
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
-    implementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    runtimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    implementation 'io.qameta.allure:allure-java-commons:2.15.0'
-    runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
+    implementation jacksonDataBind
+    implementation jacksonCore
+    implementation junitApi
+    runtimeOnly junitEngine
+    implementation allureJavaCommons
+    runtimeOnly aspectJWeaver
 }

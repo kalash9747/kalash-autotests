@@ -1,8 +1,9 @@
 package api;
 
 import io.qameta.allure.Owner;
-import models.FeedRs;
-import models.FileInCloud;
+import models.listPath.ContentObjectInfo;
+import models.listPath.PrivateListPathRs;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,23 +30,25 @@ public class HomeDirectoryTest {
     @Test
     void homeTest() {
         Set<String> expectedFileNames = new HashSet<>() {{
-            add("Берег.jpg");
-            add("Горное озеро.jpg");
             add("Долина реки.jpg");
-            add("На отдыхе.jpg");
             add("Полет.mp4");
             add("Чистая вода.jpg");
-            add("спиннер.png");
         }};
 
-        var actualFileNames = cloudMailApi.feed()
-                .parseBodyTo(FeedRs.class)
-                .getBody().getObjects()
-                .stream().map(FileInCloud::getName)
+        Set<String> actualFileNames = cloudMailApi.privateList("/")
+                .parseBodyTo(PrivateListPathRs.class)
+                .getList().stream()
+                .filter((obj) -> obj.type.equals("file"))
+                .map(ContentObjectInfo::getName)
                 .collect(toSet());
 
-        step("Проверить что в теле ответа присутствуют имена файлов:" + expectedFileNames, () ->
-                assertEquals(expectedFileNames, actualFileNames,"Список файлов не соответствует ожидаемому")
+        step("Проверить что имена файлов в теле ответа соответствуют списку:" + expectedFileNames, () ->
+                assertEquals(expectedFileNames, actualFileNames, "Список файлов не соответствует ожидаемому")
         );
+    }
+
+    @AfterEach
+    void logout() {
+        cloudMailApi.logout();
     }
 }

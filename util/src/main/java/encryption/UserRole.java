@@ -1,7 +1,7 @@
 package encryption;
 
 /**
- * Интерфейс рпользовательских ролей
+ * Интерфейс пользовательских ролей
  */
 public interface UserRole {
 }

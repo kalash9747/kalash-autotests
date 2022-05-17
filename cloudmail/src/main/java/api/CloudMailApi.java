@@ -5,10 +5,10 @@ import io.qameta.allure.Step;
 
 import java.net.HttpCookie;
 import java.net.URI;
-import java.util.Optional;
+import java.net.http.HttpRequest.BodyPublisher;
 import java.util.regex.Matcher;
 
-import static io.qameta.allure.Allure.step;
+import static api.StringPublisherAdapter.ofQueryParams;
 import static java.util.regex.Pattern.compile;
 
 /**
@@ -16,34 +16,45 @@ import static java.util.regex.Pattern.compile;
  */
 public class CloudMailApi {
     private final BaseHttpMethods base = new BaseHttpMethods();
+    private final String baseAuthUri = "https://auth.mail.ru/cgi-bin";
     private String baseUri;
     private String csrfToken;
 
-    /**
-     * Авторизоваться в cloud.mail.ru
-     */
+    @Step("Авторизоваться под пользователем {user}")
     public HttpResponseFacade login(User user) {
-        return step("Авторизоваться под пользователем " + user.getLogin(), () -> {
-            baseUri = user.getUrl();
-            URI authUri = URI.create("https://auth.mail.ru/cgi-bin/auth");
-            String authBody = String.format("username=%s&Login=%s&password=%s&Password=%s&saveauth=1&act_token=%s&page=%s",
-                    user.getLogin(), user.getLogin(), user.getPassword(), user.getPassword(), getActToken(), user.getUrl());
-
-            HttpResponseFacade response = base.post(authUri, authBody)
-                    .shouldBeStatusCode(200);
-            csrfToken = getCsrfTokenFromBody(response.getBody());
-            return response;
-        });
+        baseUri = user.getUrl();
+        URI authUri = URI.create(baseAuthUri + "/auth");
+        BodyPublisher authBody = ofQueryParams(
+                new QueryParam("username", user.getLogin()),
+                new QueryParam("Login", user.getLogin()),
+                new QueryParam("password", user.getPassword()),
+                new QueryParam("Password", user.getPassword()),
+                new QueryParam("saveauth", "1"),
+                new QueryParam("act_token", getActToken()),
+                new QueryParam("page", baseUri)
+        );
+        HttpResponseFacade response = base.post(authUri, authBody)
+                .shouldBeStatusCode(200);
+        csrfToken = getCsrfTokenFromBody(response.getBody());
+        return response;
     }
 
-    @Step("Отправить запрос api/v2/feed")
-    public HttpResponseFacade feed() {
-        return base.get(URI.create(baseUri + "/api/v2/feed"),
+    @Step("Выйти из системы")
+    public HttpResponseFacade logout() {
+        return base.get(URI.create(baseAuthUri + "/logout"));
+    }
+
+    /**
+     * Запрос информации о каталоге, указанном в параметрах
+     */
+    @Step("Отправить запрос api/v4/private/list?{path}")
+    public HttpResponseFacade privateList(String path) {
+        return base.get(URI.create(baseUri + "/api/v4/private/list?" + new QueryParam("path", path)),
                 "X-CSRF-Token", csrfToken);
     }
 
     /**
-     * Получает токен csrf, для подстановки в хидеры запросов /api/v2
+     * Получает токен csrf, для подстановки в хидеры запросов /api/
      */
     private String getCsrfTokenFromBody(String body) {
         Matcher matcher = compile("csrf\": \".[^\"]*").matcher(body);
@@ -56,11 +67,12 @@ public class CloudMailApi {
      */
     private String getActToken() {
         base.get(URI.create("https://mail.ru"));
-        Optional<HttpCookie> act = base
+        return base
                 .getCookies()
                 .stream()
                 .filter(x -> x.getName().startsWith("act"))
-                .findFirst();
-        return act.isPresent() ? act.get().getValue() : "";
+                .findFirst()
+                .map(HttpCookie::getValue)
+                .orElse("");
     }
 }

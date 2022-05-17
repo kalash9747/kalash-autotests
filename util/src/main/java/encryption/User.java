@@ -1,5 +1,7 @@
 package encryption;
 
+import static java.lang.String.format;
+
 /**
  * Данные пользователя
  */
@@ -47,10 +49,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "role='" + role + '\'' +
-                ", login='" + login + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+        return format("User{ role='%s', login='%s'}", role, login);
     }
 }
