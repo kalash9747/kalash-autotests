@@ -6,6 +6,7 @@ import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Selectors.byAttribute;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.switchTo;
 
 /**
  * Всплывающее окно авторизации
@@ -19,22 +20,22 @@ public class AuthorizationFrame {
 
     //Поле ввода имени пользователя (почты)
     public SelenideElement userNameInput() {
-        return loginPanel().$(byAttribute("name","username"));
+        return loginPanel().$(byAttribute("name", "username"));
     }
 
     //Поле ввода пароля
     public SelenideElement passwordInput() {
-        return loginPanel().$(byAttribute("name","password"));
+        return loginPanel().$(byAttribute("name", "password"));
     }
 
     //Кнопка дальше (Ввести пароль)
     public SelenideElement nextButton() {
-        return loginPanel(). $(byAttribute("data-test-id", "next-button"));
+        return loginPanel().$(byAttribute("data-test-id", "next-button"));
     }
 
     //Кнопка Войти
     public SelenideElement submitButton() {
-        return loginPanel(). $(byAttribute("data-test-id", "submit-button"));
+        return loginPanel().$(byAttribute("data-test-id", "submit-button"));
     }
 
     @Step("Ввести логин")
@@ -60,6 +61,7 @@ public class AuthorizationFrame {
     @Step("Нажать кнопку 'Войти'")
     public HomePage submitButtonClick() {
         submitButton().shouldBe(Condition.visible).click();
+        switchTo().window(0);
         return new HomePage();
     }
 }
