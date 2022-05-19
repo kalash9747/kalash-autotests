@@ -1,0 +1,10 @@
+import static Deps.*
+
+dependencies {
+    implementation jacksonDataBind
+    implementation jacksonCore
+    implementation junitApi
+    runtimeOnly junitEngine
+    implementation allureJavaCommons
+    runtimeOnly aspectJWeaver
+}

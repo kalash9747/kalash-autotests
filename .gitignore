@@ -1,5 +1,7 @@
 # Project exclude paths
+/out/
 /.gradle/
 /.idea/
+/.allure/
 /build/
-/build/classes/java/test/
+
