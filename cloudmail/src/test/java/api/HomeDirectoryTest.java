@@ -3,10 +3,7 @@ package api;
 import io.qameta.allure.Owner;
 import models.listPath.ContentObjectInfo;
 import models.listPath.PrivateListPathRs;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class HomeDirectoryTest {
     private static final CloudMailApi cloudMailApi = new CloudMailApi();
 
-    @BeforeEach
-    void login() {
+    @BeforeAll
+    static void login() {
         cloudMailApi.login(getUser(admin));
     }
 
@@ -30,7 +27,7 @@ public class HomeDirectoryTest {
     @Test
     void homeTest() {
         Set<String> expectedFileNames = new HashSet<>() {{
-            add("Долина реки.jpg");
+            add("River Valley.jpg");
             add("Полет.mp4");
             add("Чистая вода.jpg");
         }};
@@ -38,7 +35,7 @@ public class HomeDirectoryTest {
         Set<String> actualFileNames = cloudMailApi.privateList("/")
                 .parseBodyTo(PrivateListPathRs.class)
                 .getList().stream()
-                .filter((obj) -> obj.type.equals("file"))
+                .filter((obj) -> obj.getType().equals("file"))
                 .map(ContentObjectInfo::getName)
                 .collect(toSet());
 
@@ -47,8 +44,8 @@ public class HomeDirectoryTest {
         );
     }
 
-    @AfterEach
-    void logout() {
+    @AfterAll
+    static void logout() {
         cloudMailApi.logout();
     }
 }

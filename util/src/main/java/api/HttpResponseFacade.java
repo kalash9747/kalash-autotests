@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.net.http.HttpResponse;
 
+import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -40,7 +41,7 @@ public class HttpResponseFacade {
      */
     public <T> T parseBodyTo(Class<T> clazz) {
         try {
-            return new ObjectMapper().readValue(getBody(), clazz);
+            return new ObjectMapper().configure(FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(getBody(), clazz);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             System.out.println("Не удалось распарсить JSON в " + clazz.getName());

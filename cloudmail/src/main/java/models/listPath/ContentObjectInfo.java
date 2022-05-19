@@ -1,14 +1,15 @@
 package models.listPath;
 
 public class ContentObjectInfo {
-    public CountContent count;
-    public String name;
-    public String path;
-    public int size;
-    public int rev;
-    public String kind;
-    public String type;
-    public int mtime;
+    private CountContent count;
+    private String name;
+    private String path;
+    private int size;
+    private int rev;
+    private String kind;
+    private String type;
+    private int mtime;
+    private String hash;
 
     public CountContent getCount() {
         return count;
@@ -45,6 +46,4 @@ public class ContentObjectInfo {
     public String getHash() {
         return hash;
     }
-
-    public String hash;
 }
