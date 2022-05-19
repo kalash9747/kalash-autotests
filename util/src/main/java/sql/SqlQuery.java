@@ -100,7 +100,7 @@ public class SqlQuery {
     /**
      * Получить результат запроса в виде списка моделей
      */
-    public <T> List<T> getRows(Class<T> clazz){
+    public <T> List<T> getRows(Class<T> clazz) {
         try (ResultSet resultSet = executeQuery()) {
             List<T> list = new ArrayList<>();
             Field[] fields = clazz.getDeclaredFields();
@@ -111,13 +111,9 @@ public class SqlQuery {
                     field.setAccessible(true);
                     Column column = field.getAnnotation(Column.class);
                     String value = resultSet.getString((column == null) ? field.getName() : column.name());
-
-                    if (column != null && column.name().contains("content")) {
-                        byte[] bytes = resultSet.getBytes(column.name());
-                        field.set(dto, field.getType().getConstructor(byte[].class).newInstance(bytes));}else{
                     if (value != null)
                         field.set(dto, field.getType().getConstructor(String.class).newInstance(value));
-                }}
+                }
                 list.add(dto);
             }
             return list;

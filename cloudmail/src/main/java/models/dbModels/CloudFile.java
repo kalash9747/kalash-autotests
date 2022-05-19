@@ -10,7 +10,7 @@ public class CloudFile {
     @Column(name = "content_extension")
     private String extension;
     @Column(name = "content_bytes")
-    private byte[] content;
+    private String content;
 
     public String getName() {
         return name;
@@ -20,7 +20,7 @@ public class CloudFile {
         return extension;
     }
 
-    public byte[] getContent() {
+    public String getContent() {
         return content;
     }
     public String getNameWithExt() {

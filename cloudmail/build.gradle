@@ -20,7 +20,7 @@ dependencies {
     testImplementation 'io.qameta.allure:allure-junit5:2.15.0'
     testImplementation 'io.qameta.allure:allure-assertj:2.15.0'
     testImplementation 'io.qameta.allure:allure-commandline:2.15.0'
-
+    testImplementation 'commons-codec:commons-codec:1.7'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
 
