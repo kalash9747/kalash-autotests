@@ -8,7 +8,7 @@ import java.net.URI;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.util.regex.Matcher;
 
-import static api.StringPublisherAdapter.ofQueryParams;
+import static api.StringPublisherAdapter.ofMapEntries;
 import static java.util.regex.Pattern.compile;
 
 /**
@@ -24,14 +24,14 @@ public class CloudMailApi {
     public HttpResponseFacade login(User user) {
         baseUri = user.getUrl();
         URI authUri = URI.create(baseAuthUri + "/auth");
-        BodyPublisher authBody = ofQueryParams(
-                new QueryParam("username", user.getLogin()),
-                new QueryParam("Login", user.getLogin()),
-                new QueryParam("password", user.getPassword()),
-                new QueryParam("Password", user.getPassword()),
-                new QueryParam("saveauth", "1"),
-                new QueryParam("act_token", getActToken()),
-                new QueryParam("page", baseUri)
+        BodyPublisher authBody = ofMapEntries(
+                "username", user.getLogin(),
+                "Login", user.getLogin(),
+                "password", user.getPassword(),
+                "Password", user.getPassword(),
+                "saveauth", "1",
+                "act_token", getActToken(),
+                "page", baseUri
         );
         HttpResponseFacade response = base.post(authUri, authBody)
                 .shouldBeStatusCode(200);
@@ -49,7 +49,7 @@ public class CloudMailApi {
      */
     @Step("Отправить запрос api/v4/private/list?{path}")
     public HttpResponseFacade privateList(String path) {
-        return base.get(URI.create(baseUri + "/api/v4/private/list?" + new QueryParam("path", path)),
+        return base.get(URI.create(baseUri + "/api/v4/private/list?path=" + path),
                 "X-CSRF-Token", csrfToken);
     }
 
