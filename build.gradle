@@ -10,14 +10,15 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     test {
+        systemProperties+=System.properties
         useJUnitPlatform()
     }
 
     tasks.withType(JavaCompile) {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
         options.with {
             encoding = 'UTF-8'
         }

@@ -1,32 +1,34 @@
+import static Deps.*
+
 plugins {
     id "io.qameta.allure"
 }
 
 allure {
     autoconfigure = true
-    version = '2.15.0'
+    version = allureVersion
     aspectjweaver = true
     configuration = "testImplementation"
-    useJUnit5{version = '2.15.0' }
+    useJUnit5{version = allureVersion }
 }
 
 dependencies {
     implementation project(':util')
-    implementation 'io.qameta.allure:allure-java-commons:2.15.0'
-    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.13.2'
-    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.13.2'
+    implementation allureJavaCommons
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testImplementation 'io.qameta.allure:allure-junit5:2.15.0'
-    testImplementation 'io.qameta.allure:allure-assertj:2.15.0'
-    testImplementation 'io.qameta.allure:allure-commandline:2.15.0'
+    testImplementation junitApi
+    testImplementation allureJunit
+    testImplementation allureAssertJ
+    testImplementation allureCommandLine
+    testImplementation jacksonCore
+    testImplementation jacksonDataBind
+
+    testRuntimeOnly junitEngine
+    runtimeOnly aspectJWeaver
+
     testImplementation 'commons-codec:commons-codec:1.7'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-    runtimeOnly 'org.aspectj:aspectjweaver:1.9.8.M1'
-
     implementation 'com.codeborne:selenide:6.3.5'
     implementation 'io.qameta.allure:allure-selenide:2.15.0'
     testRuntimeOnly("com.browserup:browserup-proxy-core:2.1.1")
-
 }
 

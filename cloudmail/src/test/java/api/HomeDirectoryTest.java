@@ -1,9 +1,11 @@
 package api;
 
+import encryption.User;
 import io.qameta.allure.Owner;
-import models.FeedRs;
-import models.FileInCloud;
-import org.junit.jupiter.api.BeforeEach;
+import models.listPath.ContentObjectInfo;
+import models.listPath.PrivateListPathRs;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -18,10 +20,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HomeDirectoryTest {
     private static final CloudMailApi cloudMailApi = new CloudMailApi();
+    private static final User user = getUser(admin);
+    private static HttpResponseFacade authResponse;
 
-    @BeforeEach
-    void login() {
-        cloudMailApi.login(getUser(admin));
+    @BeforeAll
+    static void login() {
+        authResponse = cloudMailApi.login(user);
+    }
+
+    @DisplayName("Проверка сожержания логина пользователя в теле ответа авторизации")
+    @Owner("Калашников Владислав Александрович")
+    @Test
+    void containedLoginTest() {
+        authResponse.shouldContainedText(user.getLogin());
     }
 
     @DisplayName("Проверка списка файлов в корневом каталоге")
@@ -29,23 +40,25 @@ public class HomeDirectoryTest {
     @Test
     void homeTest() {
         Set<String> expectedFileNames = new HashSet<>() {{
-            add("Берег.jpg");
-            add("Горное озеро.jpg");
-            add("Долина реки.jpg");
-            add("На отдыхе.jpg");
+            add("River Valley.jpg");
             add("Полет.mp4");
             add("Чистая вода.jpg");
-            add("спиннер.png");
         }};
 
-        var actualFileNames = cloudMailApi.feed()
-                .parseBodyTo(FeedRs.class)
-                .getBody().getObjects()
-                .stream().map(FileInCloud::getName)
+        Set<String> actualFileNames = cloudMailApi.privateList("/")
+                .parseBodyTo(PrivateListPathRs.class)
+                .getList().stream()
+                .filter((obj) -> obj.getType().equals("file"))
+                .map(ContentObjectInfo::getName)
                 .collect(toSet());
 
-        step("Проверить что в теле ответа присутствуют имена файлов:" + expectedFileNames, () ->
-                assertEquals(expectedFileNames, actualFileNames,"Список файлов не соответствует ожидаемому")
+        step("Проверить что имена файлов в теле ответа соответствуют списку:" + expectedFileNames, () ->
+                assertEquals(expectedFileNames, actualFileNames, "Список файлов не соответствует ожидаемому")
         );
+    }
+
+    @AfterAll
+    static void logout() {
+        cloudMailApi.logout();
     }
 }
