@@ -1,12 +1,12 @@
 package pages;
 
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byAttribute;
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.switchTo;
 
 /**
  * Прелогин страница
@@ -33,11 +33,10 @@ public class PreLoginPage {
         return this;
     }
 
-    @Step("Нажать кнопку Войти в Облако")
+    @Step("Нажать кнопку 'Войти в Облако'")
     public AuthorizationFrame loginButtonClick() {
         loginButton().shouldBe(visible).click();
         switchTo().frame(1);
         return new AuthorizationFrame();
     }
-
 }

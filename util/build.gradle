@@ -1,3 +1,5 @@
+import static dependencies.Deps.*
+
 dependencies {
     implementation jacksonDataBind
     implementation jacksonCore
@@ -5,5 +7,5 @@ dependencies {
     runtimeOnly junitEngine
     implementation allureJavaCommons
     runtimeOnly aspectJWeaver
-    implementation 'org.postgresql:postgresql:42.3.5'
+    implementation postgresql
 }

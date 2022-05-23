@@ -1,27 +1,20 @@
 package pages;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.files.FileFilter;
 import encryption.User;
 import io.qameta.allure.Step;
+import models.dbModels.CloudFileInfo;
 import org.openqa.selenium.support.pagefactory.ByChained;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.*;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selectors.byAttribute;
-import static com.codeborne.selenide.Selectors.byTagName;
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.files.FileFilters.withName;
-import static com.codeborne.selenide.files.FileFilters.withNameMatching;
-import static pages.NotExtensionFilter.withoutExtension;
 
 /**
  * Домашняя страница
@@ -54,27 +47,57 @@ public class HomePage {
                 (byAttribute("class", "DataListItemThumb__root--3TJe9"))));
     }
 
-    /**
-     * Находит ячейку по имени файла
-     */
-    public SelenideElement cell(String name) {
-        return cells().filterBy(Condition.matchText(".*"+name+".*")).first();
+    //Область загрузки файла
+    public SelenideElement uploadProvocation() {
+        return $(byAttribute("class", "UploadProvocation__root--14SQV"));
     }
 
-    @Step("Скачать файл {name}")
-    public File downloadFile(String name) {
-        cell(name).click();
+    //Поле загрузки файла
+    public SelenideElement uploadInput() {
+        return uploadProvocation().$(byAttribute("type", "file"));
+    }
+
+    /**
+     * Находит ячейку по имени и расширению файла
+     */
+    public SelenideElement cell(String name, String extension) {
+        return cells()
+                .filterBy(matchText(name))
+                .filterBy(matchText(extension))
+                .first();
+    }
+
+    @Step("Проверить видимость имени и иконки файла")
+    public HomePage cellContentVisible(String name, String extension) {
+        SelenideElement cell = cell(name, extension).shouldBe(visible);
+        cell.$(byText(name)).shouldBe(visible);
+        cell.$(byText(extension.replace(".", ""))).shouldBe(visible);
+        SelenideElement cellImage = cell.$(byTagName("img"));
+        SelenideElement cellIcon = cellImage.exists() ? cellImage : cell.$("div.FileIcon__icon--21fhF");
+        cellIcon.shouldBe(visible);
+        return this;
+    }
+
+    @Step("Скачать файл {cloudFile.name}")
+    public File downloadFile(CloudFileInfo cloudFile) {
+        cell(cloudFile.getName(), cloudFile.getContentextension()).click();
         File file = null;
         downloadButton().click();
         try {
-            file = downloadButton().download(10000,withNameMatching(".*"+name+".*"));
+            file = downloadButton().download(10000, withName(cloudFile.getNameWithExt()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.out.println("Не удалось скачать файл");
         }
         return file;
     }
-//withoutExtension("tmp", "crdownload")
+
+    @Step("Загрузить файл в облако")
+    public HomePage uploadFile(File file) {
+        uploadInput().uploadFile(file);
+        return this;
+    }
+
     @Step("Проверить присутствие иконки и необходимого логина пользователя в виджете")
     public HomePage userWidgetCheck(User user) {
         userIcon().shouldBe(visible);

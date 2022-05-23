@@ -7,6 +7,8 @@ import io.qameta.allure.Step;
 import static com.codeborne.selenide.Selectors.byAttribute;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.switchTo;
+import static io.qameta.allure.Allure.getLifecycle;
+import static io.qameta.allure.Allure.step;
 
 /**
  * Всплывающее окно авторизации
@@ -45,10 +47,18 @@ public class AuthorizationFrame {
         return this;
     }
 
-    @Step("Ввести пароль")
+    /**
+     * Вводит пароль и скрывает в аллюр отчете
+     */
     public AuthorizationFrame passwordInputFill(String password) {
-        passwordInput().click();
-        passwordInput().sendKeys(password);
+        step("Ввести пароль", () -> {
+            passwordInput().click();
+            passwordInput().sendKeys(password);
+            getLifecycle().updateStep(stepResult ->
+                    stepResult.getSteps()
+                            .get(stepResult.getSteps().size() - 1)
+                            .setName("sendKeys(******)"));
+        });
         return this;
     }
 

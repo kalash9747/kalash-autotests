@@ -1,4 +1,4 @@
-import static Deps.*
+import static dependencies.Deps.*
 
 plugins {
     id "io.qameta.allure"
@@ -14,8 +14,12 @@ allure {
 
 dependencies {
     implementation project(':util')
+
+    implementation selenide
+    implementation allureSelenide
     implementation allureJavaCommons
 
+    testImplementation commonsIO
     testImplementation junitApi
     testImplementation allureJunit
     testImplementation allureAssertJ
@@ -23,12 +27,8 @@ dependencies {
     testImplementation jacksonCore
     testImplementation jacksonDataBind
 
+    testRuntimeOnly browserUpProxyCore
     testRuntimeOnly junitEngine
     runtimeOnly aspectJWeaver
-
-    testImplementation 'commons-codec:commons-codec:1.7'
-    implementation 'com.codeborne:selenide:6.3.5'
-    implementation 'io.qameta.allure:allure-selenide:2.15.0'
-    testRuntimeOnly("com.browserup:browserup-proxy-core:2.1.1")
 }
 

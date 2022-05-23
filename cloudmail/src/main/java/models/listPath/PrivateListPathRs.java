@@ -2,6 +2,9 @@ package models.listPath;
 
 import java.util.List;
 
+/**
+ * Представление ответа на запрос api/v4/private/list?path
+ */
 public class PrivateListPathRs {
     private CountContent count;
     private String name;
