@@ -2,11 +2,13 @@ package api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.qameta.allure.Step;
 
 import java.net.http.HttpResponse;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Фасад для упрощения работы с HttpResponse
@@ -25,12 +27,17 @@ public class HttpResponseFacade {
         return response.body();
     }
 
-    /**
-     * Проверяет соответствие статус-кода ожидаемому
-     */
+    @Step("Проверить, что статус-код соответствует ожидаемому: {expectedStatusCode}")
     public HttpResponseFacade shouldBeStatusCode(int expectedStatusCode) {
         assertEquals(expectedStatusCode, response.statusCode(),
                 "Статус-код ответа не соответствует ожидаемому");
+        return this;
+    }
+
+    @Step("Проверить, что в теле ответа присутствует текст: {expectedText}")
+    public HttpResponseFacade shouldContainedText(String expectedText) {
+        assertTrue(response.body().contains(expectedText),
+                "Указанный тект не найден в теле ответа: " + expectedText);
         return this;
     }
 
