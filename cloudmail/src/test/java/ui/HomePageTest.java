@@ -7,12 +7,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 import pages.HomePage;
 import sql.SqlQuery;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.WebDriverRunner.hasWebDriverStarted;
@@ -21,20 +24,22 @@ import static encryption.MailUserRole.mailDBReader;
 import static encryption.UserCryptographer.getUser;
 import static io.qameta.allure.Allure.step;
 import static java.lang.System.currentTimeMillis;
-import static org.apache.commons.io.FileUtils.readFileToByteArray;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.Authorization.login;
 
 public class HomePageTest extends TestRunner {
-    private static final User user = getUser(admin);
-    private static HomePage homePage;
-    private static CloudFileInfo fileFromDB;
+    private final User user = getUser(admin);
+    private CloudFileInfo fileFromDB;
+    private HomePage homePage;
 
     @BeforeEach
     void authorization() {
         homePage = login(user).userWidgetCheck(user);
-        fileFromDB = getAllCloudFilesFromDB().get(0).setName(currentTimeMillis() + "");
+        List<CloudFileInfo> allFilesFromDB = getAllCloudFilesFromDB();
+        fileFromDB = allFilesFromDB
+                .get(new Random().nextInt(allFilesFromDB.size()))
+                .setName(currentTimeMillis() + "");
     }
 
     @DisplayName("Проверка видимости файлов домашней страницы")
@@ -75,12 +80,11 @@ public class HomePageTest extends TestRunner {
      */
     private byte[] fileToByteArray(File file) {
         try {
-            return readFileToByteArray(file);
+            return new FileInputStream(file).readAllBytes();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Не удалось прочитать содержимое файла в массив байтов");
+            throw new AssertionFailedError("Не удалось прочитать содержимое файла в массив байтов");
         }
-        return null;
     }
 
     /**

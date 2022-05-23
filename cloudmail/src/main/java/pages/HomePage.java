@@ -6,11 +6,13 @@ import encryption.User;
 import io.qameta.allure.Step;
 import models.dbModels.CloudFileInfo;
 import org.openqa.selenium.support.pagefactory.ByChained;
+import org.opentest4j.AssertionFailedError;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
@@ -78,16 +80,16 @@ public class HomePage {
      */
     public SelenideElement cell(String name, String extension) {
         return cells()
-                .filterBy(matchText(name))
-                .filterBy(matchText(extension))
+                .filterBy(text(name))
+                .filterBy(text(extension))
                 .first();
     }
 
-    @Step("Проверить видимость имени и иконки файла")
+    @Step("Проверить видимость имени и иконки файла {name}.{extension}")
     public HomePage cellContentVisible(String name, String extension) {
         SelenideElement cell = cell(name, extension).shouldBe(visible);
         cell.$(byText(name)).shouldBe(visible);
-        cell.$(byText(extension.replace(".", ""))).shouldBe(visible);
+        cell.$(byText(extension)).shouldBe(visible);
         SelenideElement cellImage = cell.$(byTagName("img"));
         SelenideElement cellIcon = cellImage.exists() ? cellImage : cell.$(byClassContaining("FileIcon__icon"));
         cellIcon.shouldBe(visible);
@@ -97,15 +99,12 @@ public class HomePage {
     @Step("Скачать файл {cloudFile.name}")
     public File downloadFile(CloudFileInfo cloudFile) {
         cell(cloudFile.getName(), cloudFile.getContentextension()).click();
-        File file = null;
-        downloadButton().click();
         try {
-            file = downloadButton().download(10000, withName(cloudFile.getNameWithExt()));
+            return downloadButton().download(10000, withName(cloudFile.getNameWithExt()));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            System.out.println("Не удалось скачать файл");
+            throw new AssertionFailedError("Не удалось скачать файл");
         }
-        return file;
     }
 
     @Step("Загрузить файл в облако")

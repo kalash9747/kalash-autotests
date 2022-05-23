@@ -1,9 +1,9 @@
 package pages;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byAttribute;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.switchTo;
@@ -64,13 +64,13 @@ public class AuthorizationFrame {
 
     @Step("Нажать кнопку 'Ввести пароль'")
     public AuthorizationFrame nextButtonClick() {
-        nextButton().shouldBe(Condition.visible).click();
+        nextButton().shouldBe(visible).click();
         return this;
     }
 
     @Step("Нажать кнопку 'Войти'")
     public HomePage submitButtonClick() {
-        submitButton().shouldBe(Condition.visible).click();
+        submitButton().shouldBe(visible).click();
         switchTo().window(0);
         return new HomePage();
     }

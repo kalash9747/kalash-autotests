@@ -7,7 +7,7 @@ import java.io.IOException;
 import static java.lang.System.getProperty;
 
 /**
- * Представление фойла в базе данных
+ * Представление файла в базе данных
  */
 public class CloudFileInfo {
     private String name;
@@ -32,13 +32,13 @@ public class CloudFileInfo {
     }
 
     public String getNameWithExt() {
-        return name + contentextension;
+        return name + "." + contentextension;
     }
 
     public File toTempFile() {
         File file = new File(getProperty("java.io.tmpdir"), this.getNameWithExt());
         file.deleteOnExit();
-        try (FileOutputStream fos = new FileOutputStream(file.getPath())) {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(this.contentbytes);
         } catch (IOException e) {
             e.printStackTrace();

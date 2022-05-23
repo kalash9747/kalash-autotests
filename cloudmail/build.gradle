@@ -19,7 +19,6 @@ dependencies {
     implementation allureSelenide
     implementation allureJavaCommons
 
-    testImplementation commonsIO
     testImplementation junitApi
     testImplementation allureJunit
     testImplementation allureAssertJ
@@ -27,7 +26,6 @@ dependencies {
     testImplementation jacksonCore
     testImplementation jacksonDataBind
 
-    testRuntimeOnly browserUpProxyCore
     testRuntimeOnly junitEngine
     runtimeOnly aspectJWeaver
 }

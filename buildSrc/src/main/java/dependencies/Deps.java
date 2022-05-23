@@ -27,17 +27,7 @@ public class Deps {
     public static final String postgresqlOrg = "org.postgresql";
     public static final String postgresql = postgresqlOrg + ":postgresql:" + postgresqlVersion;
 
-    public static final String commonsIOVersion = "2.11.0";
-    public static final String commonsIO = "commons-io:commons-io:" + commonsIOVersion;
-
     public static final String selenideVersion = "6.3.5";
     public static final String codeborne = "com.codeborne";
     public static final String selenide = codeborne + ":selenide:" + selenideVersion;
-
-    public static final String browserUpProxyCoreVersion = "2.1.1";
-    public static final String browserUp = "com.browserup";
-    public static final String browserUpProxyCore = browserUp + ":browserup-proxy-core:" + browserUpProxyCoreVersion;
-
-
-
 }
