@@ -50,15 +50,18 @@ public class HomePageTest extends TestRunner {
     @Test
     void uploadFileCheck() {
         homePage.uploadFile(fileFromDB.toTempFile())
-                .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension());
+                .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension())
+                .removeFile(fileFromDB);
     }
 
     @DisplayName("Проверка загрузки файла и его соответствия раннее выгруженному")
     @Owner("Калашников Владислав Александрович")
     @Test
     void downloadFileCheck() {
-        homePage.uploadFile(fileFromDB.toTempFile());
-        File fileFromCloud = homePage.downloadFile(fileFromDB);
+        File fileFromCloud = homePage
+                .uploadFile(fileFromDB.toTempFile())
+                .downloadFile(fileFromDB);
+        homePage.removeFile(fileFromDB);
         step("Проверить имя загруженного файла", () ->
                 assertEquals(fileFromDB.getNameWithExt(), fileFromCloud.getName(),
                         "Имя файла не совпадает с выгруженным"));

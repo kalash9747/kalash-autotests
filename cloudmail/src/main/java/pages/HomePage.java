@@ -15,6 +15,7 @@ import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.files.FileFilters.withName;
+import static ui.ByAttribute.byClassContaining;
 
 /**
  * Домашняя страница
@@ -28,12 +29,12 @@ public class HomePage {
 
     //Логин пользователя
     public SelenideElement userName() {
-        return userWidget().$("span.ph-project__user-name");
+        return userWidget().$(byClassContaining("span", "user-name"));
     }
 
     //Иконка пользователя
     public SelenideElement userIcon() {
-        return userWidget().$("span.ph-project__user-icon").$(byTagName("img"));
+        return userWidget().$(byClassContaining("span", "user-icon")).$(byTagName("img"));
     }
 
     //Кнопка 'Скачать'
@@ -41,15 +42,30 @@ public class HomePage {
         return $(byAttribute("data-name", "download"));
     }
 
+    //Кнопка 'Удалить'
+    public SelenideElement removeButton() {
+        return $(byAttribute("data-name", "remove"));
+    }
+
+    //Окно подтверждения удаления файла
+    public SelenideElement removeDialog() {
+        return $(byAttribute("data-qa-modal", "remove-confirmation-dialog"));
+    }
+
+    //Кнопка подтверждения удаления файла
+    public SelenideElement removeConfirmButton() {
+        return removeDialog().$(byAttribute("data-name", "confirm"));
+    }
+
     //Коллекция ячеек с представлением файлов
     public ElementsCollection cells() {
-        return $$(new ByChained(byAttribute("class", "VirtualList__gridRow--m0RSQ"),
-                (byAttribute("class", "DataListItemThumb__root--3TJe9"))));
+        return $$(new ByChained(byClassContaining("gridRow"),
+                (byClassContaining("DataListItemThumb__root"))));
     }
 
     //Область загрузки файла
     public SelenideElement uploadProvocation() {
-        return $(byAttribute("class", "UploadProvocation__root--14SQV"));
+        return $(byClassContaining("UploadProvocation__root"));
     }
 
     //Поле загрузки файла
@@ -73,7 +89,7 @@ public class HomePage {
         cell.$(byText(name)).shouldBe(visible);
         cell.$(byText(extension.replace(".", ""))).shouldBe(visible);
         SelenideElement cellImage = cell.$(byTagName("img"));
-        SelenideElement cellIcon = cellImage.exists() ? cellImage : cell.$("div.FileIcon__icon--21fhF");
+        SelenideElement cellIcon = cellImage.exists() ? cellImage : cell.$(byClassContaining("FileIcon__icon"));
         cellIcon.shouldBe(visible);
         return this;
     }
@@ -95,6 +111,16 @@ public class HomePage {
     @Step("Загрузить файл в облако")
     public HomePage uploadFile(File file) {
         uploadInput().uploadFile(file);
+        return this;
+    }
+
+    @Step("Удалить файл из облака")
+    public HomePage removeFile(CloudFileInfo cloudFile) {
+        SelenideElement cell = cell(cloudFile.getName(), cloudFile.getContentextension());
+        cell.shouldBe(visible).click();
+        removeButton().shouldBe(visible).click();
+        removeConfirmButton().shouldBe(visible).click();
+        cell.shouldNotBe(visible);
         return this;
     }
 

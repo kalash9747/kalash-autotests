@@ -8,4 +8,5 @@ dependencies {
     implementation allureJavaCommons
     runtimeOnly aspectJWeaver
     implementation postgresql
+    implementation selenide
 }
