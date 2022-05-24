@@ -1,5 +1,6 @@
 package ui;
 
+import com.codeborne.selenide.ElementsCollection;
 import encryption.User;
 import io.qameta.allure.Owner;
 import models.dbModels.CloudFileInfo;
@@ -16,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.WebDriverRunner.hasWebDriverStarted;
@@ -23,30 +25,30 @@ import static encryption.MailUserRole.admin;
 import static encryption.MailUserRole.mailDBReader;
 import static encryption.UserCryptographer.getUser;
 import static io.qameta.allure.Allure.step;
+import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static util.Authorization.login;
 
 public class HomePageTest extends TestRunner {
     private final User user = getUser(admin);
+    private List<CloudFileInfo> allFilesFromDB;
     private CloudFileInfo fileFromDB;
     private HomePage homePage;
 
     @BeforeEach
     void authorization() {
         homePage = login(user).userWidgetCheck(user);
-        List<CloudFileInfo> allFilesFromDB = getAllCloudFilesFromDB();
-        fileFromDB = allFilesFromDB
-                .get(new Random().nextInt(allFilesFromDB.size()))
-                .setName(currentTimeMillis() + "");
+        allFilesFromDB = getAllCloudFilesFromDB();
     }
 
     @DisplayName("Проверка видимости файлов домашней страницы")
     @Owner("Калашников Владислав Александрович")
     @Test
     void homePageFilesCheck() {
-        getAllCloudFilesFromDB().forEach(fileInfo ->
+        allFilesFromDB.forEach(fileInfo ->
                 homePage.cellContentVisible(fileInfo.getName(), fileInfo.getContentextension()));
     }
 
@@ -54,25 +56,47 @@ public class HomePageTest extends TestRunner {
     @Owner("Калашников Владислав Александрович")
     @Test
     void uploadFileCheck() {
+        fileFromDB = allFilesFromDB.get(new Random().nextInt(allFilesFromDB.size()));
+        fileFromDB.setName(format("%s--%s--", fileFromDB.getName(), currentTimeMillis()));
         homePage.uploadFile(fileFromDB.toTempFile())
-                .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension())
-                .removeFile(fileFromDB);
+                .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension());
     }
 
     @DisplayName("Проверка загрузки файла и его соответствия раннее выгруженному")
     @Owner("Калашников Владислав Александрович")
     @Test
     void downloadFileCheck() {
-        File fileFromCloud = homePage
-                .uploadFile(fileFromDB.toTempFile())
-                .downloadFile(fileFromDB);
-        homePage.removeFile(fileFromDB);
+        File fileFromCloud = homePage.downloadRandomFile();
+        String fileFromCloudNameWithoutTimestamp = fileFromCloud.getName().replaceAll("--[0-9]*--", "");
+        fileFromDB = allFilesFromDB.stream()
+                .filter(fileInfo -> fileInfo.getNameWithExt().equals(fileFromCloudNameWithoutTimestamp))
+                .findFirst()
+                .orElse(new CloudFileInfo());
+
         step("Проверить имя загруженного файла", () ->
-                assertEquals(fileFromDB.getNameWithExt(), fileFromCloud.getName(),
-                        "Имя файла не совпадает с выгруженным"));
+                assertEquals(fileFromDB.getNameWithExt(), fileFromCloudNameWithoutTimestamp,
+                        "Имя файла не совпадает ни с одним из выгруженных"));
         step("Проверить содержимое загруженного файла", () ->
                 assertArrayEquals(fileFromDB.getContentbytes(), fileToByteArray(fileFromCloud),
                         "Содержимое файла не совпадает с выгруженным"));
+    }
+
+    @DisplayName("Удалить все файлы из облака, которых нет в БД ")
+    @Owner("Калашников Владислав Александрович")
+    @Test
+    void removeAllFilesNotContainedInDBFromCloud() {
+        Set<String> filesFromDBNames = allFilesFromDB.stream()
+                .map(CloudFileInfo::getNameWithExt)
+                .collect(toSet());
+
+        ElementsCollection cells = homePage.cells();
+        for (int i = 0; i < cells.size() - 1; i++) {
+            if (!filesFromDBNames.contains(homePage.getNameWithExtFromCell(cells.get(i)))) {
+                homePage.removeFile(cells.get(i));
+                i = -1;
+                cells = homePage.cells();
+            }
+        }
     }
 
     /**

@@ -4,16 +4,17 @@ import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import encryption.User;
 import io.qameta.allure.Step;
-import models.dbModels.CloudFileInfo;
 import org.openqa.selenium.support.pagefactory.ByChained;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Random;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selectors.*;
+import static com.codeborne.selenide.Selectors.byAttribute;
+import static com.codeborne.selenide.Selectors.byTagName;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.files.FileFilters.withName;
@@ -59,12 +60,6 @@ public class HomePage {
         return removeDialog().$(byAttribute("data-name", "confirm"));
     }
 
-    //Коллекция ячеек с представлением файлов
-    public ElementsCollection cells() {
-        return $$(new ByChained(byClassContaining("gridRow"),
-                (byClassContaining("DataListItemThumb__root"))));
-    }
-
     //Область загрузки файла
     public SelenideElement uploadProvocation() {
         return $(byClassContaining("UploadProvocation__root"));
@@ -73,6 +68,12 @@ public class HomePage {
     //Поле загрузки файла
     public SelenideElement uploadInput() {
         return uploadProvocation().$(byAttribute("type", "file"));
+    }
+
+    //Коллекция ячеек с представлением файлов
+    public ElementsCollection cells() {
+        return $$(new ByChained(byClassContaining("gridRow"),
+                (byClassContaining("DataListItemThumb__root"))));
     }
 
     /**
@@ -85,22 +86,49 @@ public class HomePage {
                 .first();
     }
 
+    //Имя файла в ячейке
+    public SelenideElement cellName(SelenideElement cell) {
+        return cell.$(byClassContaining("Name__name"));
+    }
+
+    //Расширение файла в ячейке
+    public SelenideElement cellExtension(SelenideElement cell) {
+        return cell.$(byClassContaining("Name__extension"));
+    }
+
+    /**
+     * Находит рандомную ячейку с файлом
+     */
+    public SelenideElement randomCellWithFile() {
+        ElementsCollection cells = cells();
+        return cells.get(new Random().nextInt(cells.size()));
+    }
+
+    /**
+     * Получает полное имя(с расширением) файла в ячейке
+     */
+    public String getNameWithExtFromCell(SelenideElement cell) {
+        return cellName(cell).text() + cellExtension(cell).text();
+
+    }
+
     @Step("Проверить видимость имени и иконки файла {name}.{extension}")
     public HomePage cellContentVisible(String name, String extension) {
         SelenideElement cell = cell(name, extension).shouldBe(visible);
-        cell.$(byText(name)).shouldBe(visible);
-        cell.$(byText(extension)).shouldBe(visible);
+        cellName(cell).shouldBe(visible, text(name));
+        cellExtension(cell).shouldBe(visible, text("." + extension));
         SelenideElement cellImage = cell.$(byTagName("img"));
         SelenideElement cellIcon = cellImage.exists() ? cellImage : cell.$(byClassContaining("FileIcon__icon"));
         cellIcon.shouldBe(visible);
         return this;
     }
 
-    @Step("Скачать файл {cloudFile.name}")
-    public File downloadFile(CloudFileInfo cloudFile) {
-        cell(cloudFile.getName(), cloudFile.getContentextension()).click();
+    @Step("Скачать рандомный файл")
+    public File downloadRandomFile() {
+        SelenideElement cell = randomCellWithFile();
+        cell.click();
         try {
-            return downloadButton().download(10000, withName(cloudFile.getNameWithExt()));
+            return downloadButton().download(10000, withName(getNameWithExtFromCell(cell)));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new AssertionFailedError("Не удалось скачать файл");
@@ -114,12 +142,10 @@ public class HomePage {
     }
 
     @Step("Удалить файл из облака")
-    public HomePage removeFile(CloudFileInfo cloudFile) {
-        SelenideElement cell = cell(cloudFile.getName(), cloudFile.getContentextension());
+    public HomePage removeFile(SelenideElement cell) {
         cell.shouldBe(visible).click();
         removeButton().shouldBe(visible).click();
         removeConfirmButton().shouldBe(visible).click();
-        cell.shouldNotBe(visible);
         return this;
     }
 
