@@ -9,7 +9,8 @@ import org.opentest4j.AssertionFailedError;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -45,6 +46,16 @@ public class HomePage {
         return $(byAttribute("data-name", "download"));
     }
 
+    //Кнопка 'Загрузить'
+    public SelenideElement uploadButton() {
+        return $(byAttribute("data-name", "upload"));
+    }
+
+    //Поле загрузки файла в диалоговом окне загрузки
+    public SelenideElement uploadDialogInput() {
+        return $(byClassContaining("UploadDialog__input"));
+    }
+
     //Кнопка 'Удалить'
     public SelenideElement removeButton() {
         return $(byAttribute("data-name", "remove"));
@@ -58,16 +69,6 @@ public class HomePage {
     //Кнопка подтверждения удаления файла
     public SelenideElement removeConfirmButton() {
         return removeDialog().$(byAttribute("data-name", "confirm"));
-    }
-
-    //Область загрузки файла
-    public SelenideElement uploadProvocation() {
-        return $(byClassContaining("UploadProvocation__root"));
-    }
-
-    //Поле загрузки файла
-    public SelenideElement uploadInput() {
-        return uploadProvocation().$(byAttribute("type", "file"));
     }
 
     //Коллекция ячеек с представлением файлов
@@ -97,19 +98,20 @@ public class HomePage {
     }
 
     /**
-     * Находит рандомную ячейку с файлом
-     */
-    public SelenideElement randomCellWithFile() {
-        ElementsCollection cells = cells();
-        return cells.get(new Random().nextInt(cells.size()));
-    }
-
-    /**
      * Получает полное имя(с расширением) файла в ячейке
      */
     public String getNameWithExtFromCell(SelenideElement cell) {
         return cellName(cell).text() + cellExtension(cell).text();
 
+    }
+
+    /**
+     * Получает список полных имён(с расширением) всех файлов
+     */
+    public List<String> getFullNamesFromAllCells() {
+        List<String> names = new ArrayList<>();
+        cells().asFixedIterable().forEach(cell -> names.add(getNameWithExtFromCell(cell)));
+        return names;
     }
 
     @Step("Проверить видимость имени и иконки файла {name}.{extension}")
@@ -123,27 +125,27 @@ public class HomePage {
         return this;
     }
 
-    @Step("Скачать рандомный файл")
-    public File downloadRandomFile() {
-        SelenideElement cell = randomCellWithFile();
-        cell.click();
+    @Step("Скачать файл {nameWithExt}")
+    public File downloadFile(String nameWithExt) {
+        String[] nameParts = nameWithExt.split("\\.");
+        cellScrollAndClick(cell(nameParts[0], nameParts[1]));
         try {
-            return downloadButton().download(10000, withName(getNameWithExtFromCell(cell)));
+            return downloadButton().download(10000, withName(nameParts[0] + "." + nameParts[1]));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new AssertionFailedError("Не удалось скачать файл");
+            throw new AssertionFailedError("Не удалось скачать файл", e);
         }
     }
 
     @Step("Загрузить файл в облако")
     public HomePage uploadFile(File file) {
-        uploadInput().uploadFile(file);
+        uploadButton().shouldBe(visible).click();
+        uploadDialogInput().uploadFile(file);
         return this;
     }
 
     @Step("Удалить файл из облака")
     public HomePage removeFile(SelenideElement cell) {
-        cell.shouldBe(visible).click();
+        cellScrollAndClick(cell);
         removeButton().shouldBe(visible).click();
         removeConfirmButton().shouldBe(visible).click();
         return this;
@@ -154,5 +156,12 @@ public class HomePage {
         userIcon().shouldBe(visible);
         userName().shouldBe(visible, text(user.getLogin()));
         return this;
+    }
+
+    /**
+     * Скролл до элемента и клик по нему
+     */
+    public void cellScrollAndClick(SelenideElement element) {
+        element.scrollTo().shouldBe(visible).click();
     }
 }

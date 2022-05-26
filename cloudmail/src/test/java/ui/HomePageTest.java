@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.WebDriverRunner.hasWebDriverStarted;
@@ -29,7 +30,7 @@ import static java.lang.String.format;
 import static java.lang.System.currentTimeMillis;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static util.Authorization.login;
 
 public class HomePageTest extends TestRunner {
@@ -37,6 +38,7 @@ public class HomePageTest extends TestRunner {
     private List<CloudFileInfo> allFilesFromDB;
     private CloudFileInfo fileFromDB;
     private HomePage homePage;
+    private Random random = new Random();
 
     @BeforeEach
     void authorization() {
@@ -56,7 +58,7 @@ public class HomePageTest extends TestRunner {
     @Owner("Калашников Владислав Александрович")
     @Test
     void uploadFileCheck() {
-        fileFromDB = allFilesFromDB.get(new Random().nextInt(allFilesFromDB.size()));
+        fileFromDB = allFilesFromDB.get(random.nextInt(allFilesFromDB.size()));
         fileFromDB.setName(format("%s--%s--", fileFromDB.getName(), currentTimeMillis()));
         homePage.uploadFile(fileFromDB.toTempFile())
                 .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension());
@@ -66,16 +68,21 @@ public class HomePageTest extends TestRunner {
     @Owner("Калашников Владислав Александрович")
     @Test
     void downloadFileCheck() {
-        File fileFromCloud = homePage.downloadRandomFile();
-        String fileFromCloudNameWithoutTimestamp = fileFromCloud.getName().replaceAll("--[0-9]*--", "");
+        Set<String> filesFromDBNames = allFilesFromDB.stream()
+                .map(CloudFileInfo::getNameWithExt)
+                .collect(toSet());
+        List<String> fileNamesForDownload = homePage.getFullNamesFromAllCells().stream()
+                .filter(name -> filesFromDBNames.contains(getNameWithoutTimestamp(name)))
+                .collect(Collectors.toList());
+        assumeFalse(fileNamesForDownload.isEmpty(), "Ни одного имени файла в облаке нет в списке выгруженных");
+
+        File fileFromCloud = homePage
+                .downloadFile(fileNamesForDownload.get(
+                        random.nextInt(fileNamesForDownload.size())));
         fileFromDB = allFilesFromDB.stream()
-                .filter(fileInfo -> fileInfo.getNameWithExt().equals(fileFromCloudNameWithoutTimestamp))
+                .filter(fileInfo -> fileInfo.getNameWithExt().equals(getNameWithoutTimestamp(fileFromCloud.getName())))
                 .findFirst()
                 .orElse(new CloudFileInfo());
-
-        step("Проверить имя загруженного файла", () ->
-                assertEquals(fileFromDB.getNameWithExt(), fileFromCloudNameWithoutTimestamp,
-                        "Имя файла не совпадает ни с одним из выгруженных"));
         step("Проверить содержимое загруженного файла", () ->
                 assertArrayEquals(fileFromDB.getContentbytes(), fileToByteArray(fileFromCloud),
                         "Содержимое файла не совпадает с выгруженным"));
@@ -90,24 +97,29 @@ public class HomePageTest extends TestRunner {
                 .collect(toSet());
 
         ElementsCollection cells = homePage.cells();
-        for (int i = 0; i < cells.size() - 1; i++) {
+        for (int i = cells.size() - 1; i >= 0; i--) {
             if (!filesFromDBNames.contains(homePage.getNameWithExtFromCell(cells.get(i)))) {
                 homePage.removeFile(cells.get(i));
-                i = -1;
                 cells = homePage.cells();
             }
         }
     }
 
     /**
+     * Убирает из имени временную метку
+     */
+    private String getNameWithoutTimestamp(String name) {
+        return name.replaceAll("--[0-9]*--", "");
+    }
+
+    /**
      * Считывает файл в массив байтов
      */
     private byte[] fileToByteArray(File file) {
-        try {
-            return new FileInputStream(file).readAllBytes();
+        try (FileInputStream fis = new FileInputStream(file)) {
+            return fis.readAllBytes();
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new AssertionFailedError("Не удалось прочитать содержимое файла в массив байтов");
+            throw new AssertionFailedError("Не удалось прочитать содержимое файла в массив байтов", e);
         }
     }
 
