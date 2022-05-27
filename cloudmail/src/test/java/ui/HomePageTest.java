@@ -36,7 +36,6 @@ import static util.Authorization.login;
 public class HomePageTest extends TestRunner {
     private final User user = getUser(admin);
     private List<CloudFileInfo> allFilesFromDB;
-    private CloudFileInfo fileFromDB;
     private HomePage homePage;
     private Random random = new Random();
 
@@ -58,7 +57,7 @@ public class HomePageTest extends TestRunner {
     @Owner("Калашников Владислав Александрович")
     @Test
     void uploadFileCheck() {
-        fileFromDB = allFilesFromDB.get(random.nextInt(allFilesFromDB.size()));
+        CloudFileInfo fileFromDB = allFilesFromDB.get(random.nextInt(allFilesFromDB.size()));
         fileFromDB.setName(format("%s--%s--", fileFromDB.getName(), currentTimeMillis()));
         homePage.uploadFile(fileFromDB.toTempFile())
                 .cellContentVisible(fileFromDB.getName(), fileFromDB.getContentextension());
@@ -79,10 +78,10 @@ public class HomePageTest extends TestRunner {
         File fileFromCloud = homePage
                 .downloadFile(fileNamesForDownload.get(
                         random.nextInt(fileNamesForDownload.size())));
-        fileFromDB = allFilesFromDB.stream()
+        CloudFileInfo fileFromDB = allFilesFromDB.stream()
                 .filter(fileInfo -> fileInfo.getNameWithExt().equals(getNameWithoutTimestamp(fileFromCloud.getName())))
                 .findFirst()
-                .orElse(new CloudFileInfo());
+                .orElseThrow(() -> new IllegalStateException("Не удалось найти и получить файл из базы"));
         step("Проверить содержимое загруженного файла", () ->
                 assertArrayEquals(fileFromDB.getContentbytes(), fileToByteArray(fileFromCloud),
                         "Содержимое файла не совпадает с выгруженным"));
@@ -98,10 +97,8 @@ public class HomePageTest extends TestRunner {
 
         ElementsCollection cells = homePage.cells();
         for (int i = cells.size() - 1; i >= 0; i--) {
-            if (!filesFromDBNames.contains(homePage.getNameWithExtFromCell(cells.get(i)))) {
+            if (!filesFromDBNames.contains(homePage.getNameWithExtFromCell(cells.get(i))))
                 homePage.removeFile(cells.get(i));
-                cells = homePage.cells();
-            }
         }
     }
 
