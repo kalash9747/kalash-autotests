@@ -35,7 +35,7 @@ public class HttpResponseFacade {
     }
 
     @Step("Проверить, что в теле ответа присутствует текст: {expectedText}")
-    public HttpResponseFacade shouldContainedText(String expectedText) {
+    public HttpResponseFacade shouldContainText(String expectedText) {
         assertTrue(response.body().contains(expectedText),
                 "Указанный тект не найден в теле ответа: " + expectedText);
         return this;
