@@ -1,4 +1,4 @@
-import static Deps.*
+import static dependencies.Deps.*
 
 plugins {
     id "io.qameta.allure"
@@ -14,6 +14,9 @@ allure {
 
 dependencies {
     implementation project(':util')
+
+    implementation selenide
+    implementation allureSelenide
     implementation allureJavaCommons
 
     testImplementation junitApi

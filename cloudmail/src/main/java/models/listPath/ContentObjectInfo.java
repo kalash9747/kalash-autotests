@@ -1,5 +1,8 @@
 package models.listPath;
 
+/**
+ * Представление объекта(файла или папки) в ответе на запрос api/v4/private/list?path
+ */
 public class ContentObjectInfo {
     private CountContent count;
     private String name;

@@ -4,5 +4,6 @@ package encryption;
  * Роли пользователей CloudMail
  */
 public enum MailUserRole implements UserRole {
-    admin
+    admin,
+    mailDBReader
 }

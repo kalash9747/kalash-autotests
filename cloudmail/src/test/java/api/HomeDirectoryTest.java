@@ -28,11 +28,11 @@ public class HomeDirectoryTest {
         authResponse = cloudMailApi.login(user);
     }
 
-    @DisplayName("Проверка сожержания логина пользователя в теле ответа авторизации")
+    @DisplayName("Проверка содержания логина пользователя в теле ответа авторизации")
     @Owner("Калашников Владислав Александрович")
     @Test
     void containedLoginTest() {
-        authResponse.shouldContainedText(user.getLogin());
+        authResponse.shouldContainText(user.getLogin());
     }
 
     @DisplayName("Проверка списка файлов в корневом каталоге")

@@ -1,4 +1,4 @@
-import static Deps.*
+import static dependencies.Deps.*
 
 dependencies {
     implementation jacksonDataBind
@@ -7,4 +7,6 @@ dependencies {
     runtimeOnly junitEngine
     implementation allureJavaCommons
     runtimeOnly aspectJWeaver
+    implementation postgresql
+    implementation selenide
 }
