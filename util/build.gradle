@@ -1,7 +1,7 @@
 import static dependencies.Deps.*
 
 dependencies {
-    implementation 'org.jooq:jooq:3.16.6'
+    implementation jooqDep
     implementation jacksonDataBind
     implementation jacksonCore
     implementation junitApi
