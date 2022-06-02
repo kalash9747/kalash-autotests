@@ -7,3 +7,4 @@ dependencyResolutionManagement{
 rootProject.name = 'kalash-autotests'
 include 'util'
 include 'cloudmail'
+include 'perf'

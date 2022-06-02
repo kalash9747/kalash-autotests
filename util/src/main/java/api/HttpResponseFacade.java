@@ -1,12 +1,11 @@
 package api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.qameta.allure.Step;
+import json.JsonHelper;
 
 import java.net.http.HttpResponse;
 
-import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
+import static io.qameta.allure.Allure.addAttachment;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,6 +35,7 @@ public class HttpResponseFacade {
 
     @Step("Проверить, что в теле ответа присутствует текст: {expectedText}")
     public HttpResponseFacade shouldContainText(String expectedText) {
+        addAttachment("Тело ответа:", getBody());
         assertTrue(response.body().contains(expectedText),
                 "Указанный тект не найден в теле ответа: " + expectedText);
         return this;
@@ -47,12 +47,6 @@ public class HttpResponseFacade {
      * @return - Объект указанного класса
      */
     public <T> T parseBodyTo(Class<T> clazz) {
-        try {
-            return new ObjectMapper().configure(FAIL_ON_UNKNOWN_PROPERTIES, false).readValue(getBody(), clazz);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            System.out.println("Не удалось распарсить JSON в " + clazz.getName());
-        }
-        return null;
+        return JsonHelper.jsonToObject(getBody(), clazz);
     }
 }
