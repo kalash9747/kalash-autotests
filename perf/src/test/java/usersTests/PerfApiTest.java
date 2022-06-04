@@ -100,7 +100,7 @@ public class PerfApiTest {
     private CarRecord getCheapestCarNotOwned(PersonRecord person) {
         return dbExecutor.getCarRecords().stream()
                 .filter(c -> c.getPrice() != null)
-                .filter(c -> c.getPersonId() != null && !c.getPersonId().equals(person.getId()))
+                .filter(c -> !person.getId().equals(c.getPersonId()))
                 .min(comparing(CarRecord::getPrice))
                 .orElseThrow(() -> new IllegalStateException("Не удалось найти самую дешевую машину"));
     }
