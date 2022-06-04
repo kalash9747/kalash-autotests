@@ -6,7 +6,6 @@ import org.jooq.generated.tables.records.PersonRecord;
 import java.math.BigDecimal;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
-import static java.math.BigDecimal.valueOf;
 
 /**
  * Сущность пользователя для отправки запросов к PerfApi
@@ -82,12 +81,12 @@ public class PersonInfo {
         return this;
     }
 
-    public double getMoney() {
-        return money.doubleValue();
+    public BigDecimal getMoney() {
+        return money;
     }
 
-    public PersonInfo setMoney(double money) {
-        this.money = valueOf(money);
+    public PersonInfo setMoney(BigDecimal money) {
+        this.money = money;
         return this;
     }
 

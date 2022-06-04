@@ -18,7 +18,6 @@ import static encryption.PerfUserRole.PerfDBReader;
 import static encryption.UserCryptographer.getUser;
 import static io.qameta.allure.Allure.step;
 import static java.lang.Integer.MAX_VALUE;
-import static java.math.BigDecimal.valueOf;
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -35,9 +34,12 @@ public class PerfApiTest {
         Faker faker = new Faker();
         long maxPersonIdBefore = dbExecutor.getMaxPersonId();
 
-        PersonInfo personRq = new PersonInfo(new PersonRecord(null, faker.number().numberBetween(18, 100),
-                faker.name().firstName(), new BigDecimal(random.nextInt(MAX_VALUE) + "." + random.nextInt(100)),
-                faker.name().lastName(), faker.bool().bool(), null));
+        PersonInfo personRq = new PersonInfo()
+                .setFirstName(faker.name().firstName())
+                .setSecondName(faker.name().lastName())
+                .setSexFromBool(faker.bool().bool())
+                .setAge(faker.number().numberBetween(18, 100))
+                .setMoney(new BigDecimal(random.nextInt(MAX_VALUE) + "." + random.nextInt(100)));
 
         PersonInfo personRs = perfApi.addUser(personRq)
                 .shouldBeStatusCode(201)
@@ -78,7 +80,7 @@ public class PerfApiTest {
                         "Фамилия не соответствует отправленной"),
                 () -> assertEquals(person.getAge(), personRecord.getAge(),
                         "Возраст не соответствует отправленному"),
-                () -> assertEquals(0, valueOf(person.getMoney()).compareTo(personRecord.getMoney()),
+                () -> assertEquals(0, person.getMoney().compareTo(personRecord.getMoney()),
                         "Количество денег не соответствует отправленному"),
                 () -> assertEquals(person.getSexAsBool(), personRecord.getSex(),
                         "Пол не соответствует отправленному"));
