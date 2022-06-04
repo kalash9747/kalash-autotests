@@ -24,7 +24,7 @@ dependencies {
     testImplementation junitApi
     testImplementation allureJunit
     testImplementation allureAssertJ
-    testImplementation allureCommandLine
+    implementation javaFaker
 
     testRuntimeOnly junitEngine
     runtimeOnly aspectJWeaver
@@ -37,7 +37,7 @@ jooq {
             generationTool {
                 jdbc {
                     driver = 'org.postgresql.Driver'
-                    url = 'jdbc:postgresql://77.50.236.203:4832/pflb_trainingcenter'
+                    url =  getenv("perfDbUrl")
                     user = getenv("perfDbLogin")
                     password = getenv("perfDbPassword")
                 }

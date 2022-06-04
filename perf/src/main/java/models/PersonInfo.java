@@ -11,7 +11,7 @@ import static java.math.BigDecimal.valueOf;
 /**
  * Сущность пользователя для отправки запросов к PerfApi
  */
-public class PersonRq {
+public class PersonInfo {
     @JsonInclude(NON_DEFAULT)
     public long id;
     public String firstName;
@@ -20,14 +20,14 @@ public class PersonRq {
     public String sex;
     public BigDecimal money;
 
-    public PersonRq() {
+    public PersonInfo() {
     }
 
-    public PersonRq(PersonRecord personRecord) {
+    public PersonInfo(PersonRecord personRecord) {
         this.firstName = personRecord.getFirstName();
         this.secondName = personRecord.getSecondName();
         this.age = personRecord.getAge();
-        this.setSex(personRecord.getSex());
+        this.setSexFromBool(personRecord.getSex());
         this.money = personRecord.getMoney();
         if (personRecord.getId() != null)
             this.id = personRecord.getId();
@@ -41,7 +41,7 @@ public class PersonRq {
         return firstName;
     }
 
-    public PersonRq setFirstName(String firstName) {
+    public PersonInfo setFirstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
@@ -50,7 +50,7 @@ public class PersonRq {
         return secondName;
     }
 
-    public PersonRq setSecondName(String secondName) {
+    public PersonInfo setSecondName(String secondName) {
         this.secondName = secondName;
         return this;
     }
@@ -59,7 +59,7 @@ public class PersonRq {
         return age;
     }
 
-    public PersonRq setAge(int age) {
+    public PersonInfo setAge(int age) {
         this.age = age;
         return this;
     }
@@ -68,7 +68,16 @@ public class PersonRq {
         return sex;
     }
 
-    public PersonRq setSex(boolean sex) {
+    public boolean getSexAsBool() {
+        return sex.equals("MALE");
+    }
+
+    public PersonInfo setSex(String sex) {
+        this.sex = sex;
+        return this;
+    }
+
+    public PersonInfo setSexFromBool(boolean sex) {
         this.sex = sex ? "MALE" : "FEMALE";
         return this;
     }
@@ -77,7 +86,7 @@ public class PersonRq {
         return money.doubleValue();
     }
 
-    public PersonRq setMoney(double money) {
+    public PersonInfo setMoney(double money) {
         this.money = valueOf(money);
         return this;
     }

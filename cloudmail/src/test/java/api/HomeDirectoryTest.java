@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static encryption.MailUserRole.admin;
+import static encryption.MailUserRole.Admin;
 import static encryption.UserCryptographer.getUser;
 import static io.qameta.allure.Allure.step;
 import static java.util.stream.Collectors.toSet;
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HomeDirectoryTest {
     private static final CloudMailApi cloudMailApi = new CloudMailApi();
-    private static final User user = getUser(admin);
+    private static final User user = getUser(Admin);
     private static HttpResponseFacade authResponse;
 
     @BeforeAll

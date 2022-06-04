@@ -1,6 +1,6 @@
 package encryption;
 
 public enum PerfUserRole implements UserRole {
-    perfDBReader,
-    perfApiUser
+    PerfDBReader,
+    PerfApiUser
 }

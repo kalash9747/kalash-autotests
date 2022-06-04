@@ -56,18 +56,11 @@ public class BaseHttpMethods {
     }
 
     /**
-     * Отправить GET запрос без заголовков
-     */
-    public HttpResponseFacade get(URI uri) {
-        return get(uri, (String[]) null);
-    }
-
-    /**
      * Отправить GET запрос
      */
     public HttpResponseFacade get(URI uri, String... headers) {
         HttpRequest.Builder builder = newBuilder(uri);
-        return send(headers == null ? builder.build() : builder.headers(headers).build());
+        return send(headers == null || headers.length < 1 ? builder.build() : builder.headers(headers).build());
     }
 
     /**
@@ -75,14 +68,7 @@ public class BaseHttpMethods {
      */
     public HttpResponseFacade post(URI uri, BodyPublisher body, String... headers) {
         HttpRequest.Builder builder = newBuilder(uri).POST(body);
-        return send(headers == null ? builder.build() : builder.headers(headers).build());
-    }
-
-    /**
-     * Отправить POST запрос без заголовков
-     */
-    public HttpResponseFacade post(URI uri, BodyPublisher body) {
-        return post(uri, body, (String[]) null);
+        return send(headers == null || headers.length < 1 ? builder.build() : builder.headers(headers).build());
     }
 
     /**
@@ -90,12 +76,5 @@ public class BaseHttpMethods {
      */
     public HttpResponseFacade post(URI uri, String... headers) {
         return post(uri, noBody(), headers);
-    }
-
-    /**
-     * Отправить POST запрос без тела и заголовков
-     */
-    public HttpResponseFacade post(URI uri) {
-        return post(uri, (String[]) null);
     }
 }

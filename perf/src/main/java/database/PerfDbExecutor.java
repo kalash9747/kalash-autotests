@@ -10,6 +10,7 @@ import java.util.List;
 import static org.jooq.generated.Tables.CAR;
 import static org.jooq.generated.Tables.PERSON;
 import static org.jooq.impl.DSL.asterisk;
+import static org.jooq.impl.DSL.max;
 
 /**
  * Исполнитель запросов к БД 'pflb_trainingcenter'
@@ -19,6 +20,15 @@ public class PerfDbExecutor {
 
     public PerfDbExecutor(User dbUser) {
         this.jooqQuery = new JooqQuery(dbUser);
+    }
+
+
+    /**
+     * Получить всех пользователей из БД
+     */
+    public long getMaxPersonId() {
+        return jooqQuery.executeQuery(dslContext -> dslContext
+                .select(max(PERSON.ID)).from(PERSON).fetchAnyInto(Long.class));
     }
 
     /**
@@ -37,20 +47,6 @@ public class PerfDbExecutor {
         return jooqQuery.executeQuery(dslContext -> dslContext
                 .select(asterisk()).from(CAR)
                 .fetchInto(CarRecord.class));
-    }
-
-    /**
-     * Посчитать количество пользователей в БД
-     */
-    public int getCountPersonRecords(PersonRecord person) {
-        return jooqQuery.executeQuery(dslContext -> dslContext
-                .select(asterisk()).from(PERSON)
-                .where(PERSON.FIRST_NAME.eq(person.getFirstName()))
-                .and(PERSON.SECOND_NAME.eq(person.getSecondName()))
-                .and(PERSON.AGE.eq(person.getAge()))
-                .and(PERSON.MONEY.eq(person.getMoney()).toString())
-                .and(PERSON.SEX.eq(true))
-                .execute());
     }
 
     /**
