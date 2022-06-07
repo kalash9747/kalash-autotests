@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.WebDriverRunner.hasWebDriverStarted;
-import static encryption.MailUserRole.admin;
-import static encryption.MailUserRole.mailDBReader;
+import static encryption.MailUserRole.Admin;
+import static encryption.MailUserRole.MailDBReader;
 import static encryption.UserCryptographer.getUser;
 import static io.qameta.allure.Allure.step;
 import static java.lang.String.format;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static util.Authorization.login;
 
 public class HomePageTest extends TestRunner {
-    private final User user = getUser(admin);
+    private final User user = getUser(Admin);
     private List<CloudFileInfo> allFilesFromDB;
     private HomePage homePage;
     private Random random = new Random();
@@ -124,7 +124,7 @@ public class HomePageTest extends TestRunner {
      * Получает представление файл из базы данных
      */
     private static List<CloudFileInfo> getAllCloudFilesFromDB() {
-        return new SqlQuery(getUser(mailDBReader))
+        return new SqlQuery(getUser(MailDBReader))
                 .setQuery("select fn.name, ft.contentextension, fc.contentbytes from  file_upload " +
                         "join file_name fn on fn.filename_id = file_upload.filename_id " +
                         "join file_content fc on fc.content_id = file_upload.content_id " +

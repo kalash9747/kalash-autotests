@@ -30,4 +30,12 @@ public class Deps {
     public static final String selenideVersion = "6.3.5";
     public static final String codeborne = "com.codeborne";
     public static final String selenide = codeborne + ":selenide:" + selenideVersion;
+
+    public static final String jooqVersion = "3.16.6";
+    public static final String orgJooq = "org.jooq";
+    public static final String jooqDep = orgJooq + ":jooq:" + jooqVersion;
+
+    public static final String javaFakerVersion = "1.0.2";
+    public static final String githubJavaFaker= "com.github.javafaker";
+    public static final String javaFaker = githubJavaFaker+":javafaker:"+javaFakerVersion;
 }

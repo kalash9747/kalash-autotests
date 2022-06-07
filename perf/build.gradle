@@ -1,0 +1,52 @@
+import static dependencies.Deps.*
+import static java.lang.System.getenv
+
+plugins {
+    id "io.qameta.allure"
+    id 'nu.studer.jooq' version '7.1.1'
+}
+
+allure {
+    autoconfigure = true
+    version = allureVersion
+    aspectjweaver = true
+    configuration = "testImplementation"
+    useJUnit5 { version = allureVersion }
+}
+
+dependencies {
+    implementation project(':util')
+
+    jooqGenerator postgresql
+    implementation allureJavaCommons
+    implementation jacksonDataBind
+    implementation jacksonCore
+    testImplementation junitApi
+    testImplementation allureJunit
+    testImplementation allureAssertJ
+    implementation javaFaker
+
+    testRuntimeOnly junitEngine
+    runtimeOnly aspectJWeaver
+}
+
+jooq {
+    version = jooqVersion
+    configurations {
+        main {
+            generationTool {
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url =  getenv("perfDbUrl")
+                    user = getenv("perfDbLogin")
+                    password = getenv("perfDbPassword")
+                }
+                generator {
+                    database {
+                        inputSchema = 'public'
+                    }
+                }
+            }
+        }
+    }
+}
