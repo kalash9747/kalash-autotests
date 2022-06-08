@@ -91,10 +91,14 @@ public class PerfApiTest {
         step("Проверить что у автомобиля изменился владелец", () ->
                 assertEquals(person.getId(), dbExecutor.getCarRecordById(car.getId()).getPersonId(),
                         "У автомобиля должен измениться владелец"));
-        step("Проверить что количество денег человека уменьшилось на цену автомобиля", () ->
-                assertEquals(0, person.getMoney().subtract(car.getPrice())
-                                .compareTo(dbExecutor.getPersonRecordById(person.getId()).getMoney()),
-                        "Количество денег должно было уменьшиться на цену автомобиля"));
+        step("Проверить что количество денег человека уменьшилось на цену автомобиля", () -> {
+            BigDecimal expectedMoney = person.getMoney().subtract(car.getPrice());
+            BigDecimal actualMoney = dbExecutor.getPersonRecordById(person.getId()).getMoney();
+
+            assertEquals(0, expectedMoney.compareTo(actualMoney),
+                    "Количество денег должно было уменьшиться на цену автомобиля\n" +
+                            "Expected: " + actualMoney + "\nActual: " + actualMoney);
+        });
     }
 
     @DisplayName("Проверка покупки не электрического автомобиля, " +
@@ -105,22 +109,23 @@ public class PerfApiTest {
     @Owner("Калашников Владислав Александрович")
     @Test
     void buyNotElectricCarWithoutFreePlacesInHouse() {
-        System.out.println(dbExecutor.getUsersWhereCountCarsLessSumPlaces());
-        PersonRecord person = getRichestPerson(dbExecutor.getUsersWhereCountCarsLessSumPlaces());
-        assumeTrue(person != null, "Не удалось найти пользователя живущего в доме без свободных парковочных мест");
+        List<PersonRecord> personRecords = dbExecutor.getUsersWhereCountCarsLessSumPlaces();
+        assumeTrue(!personRecords.isEmpty(),
+                "Не удалось найти пользователей живущих в доме без свободных парковочных мест");
+
+        PersonRecord person = getRichestPerson(personRecords);
         CarRecord car = getCheapestCarNotEngineTypeId(dbExecutor
                 .getCarsNotOwned(personsIdInOneHouse(person.getHouseId())), 5);
         assumeTrue(person.getMoney().compareTo(car.getPrice()) >= 0,
                 "В базе данных нет пользователя c заданным условием, у которого хватает денег" +
                         "хотя бы на самую дешевую не электрическую машину");
-        int countCarsInHouseBefore = dbExecutor.getCountCarsInHouse(person.getHouseId());
-        System.out.println(countCarsInHouseBefore);
-        perfApi.buyCar(person.getId(), car.getId());
 
-        System.out.println(dbExecutor.getCountCarsInHouse(person.getHouseId()));
-        step("Проверить что количество машин в доме не изменилось", () ->
-                assertEquals(countCarsInHouseBefore, dbExecutor.getCountCarsInHouse(person.getHouseId()),
-                        "Количество машин в доме: " + countCarsInHouseBefore + ", не должно было измениться"));
+        int countCarsInHouseBefore = dbExecutor.getCountCarsInHouse(person.getHouseId());
+        step("Проверить код ответа и количество машин в доме ", () -> assertAll(
+                () -> perfApi.buyCar(person.getId(), car.getId())
+                        .shouldBeStatusCode(412),
+                () -> assertEquals(countCarsInHouseBefore, dbExecutor.getCountCarsInHouse(person.getHouseId()),
+                        "Количество машин в доме: " + countCarsInHouseBefore + ", не должно было измениться")));
     }
 
     @Step("Проверить, что данные новой записи в БД соответствуют отправленным в запросе")
