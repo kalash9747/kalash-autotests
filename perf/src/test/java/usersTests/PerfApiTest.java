@@ -79,7 +79,6 @@ public class PerfApiTest {
     @Owner("Калашников Владислав Александрович")
     @Test
     void buyNotElectricCarCheck() {
-        System.out.println(dbExecutor.getUsersInHousesWithFreePlaces());
         PersonRecord person = getRichestPerson(dbExecutor.getUsersInHousesWithFreePlaces());
         CarRecord car = getCheapestCarNotEngineTypeId(dbExecutor.getCarsNotOwned(person.getId()), 5);
         assumeTrue(person.getMoney().compareTo(car.getPrice()) >= 0,
