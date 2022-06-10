@@ -109,11 +109,11 @@ public class PerfDbExecutor {
         return jooqQuery.executeQuery(dslContext -> dslContext
                 .select(person.asterisk())
                 .from(person
+                        .join(housePlacesCars)
+                        .on(person.HOUSE_ID.in(housePlacesCars.field("id")))
                         .leftJoin(countUserCars)
                         .on(person.HOUSE_ID.in(countUserCars.field("carPersonId")))
-                        .join(housePlacesCars)
-                        .on(person.HOUSE_ID.in(housePlacesCars.field("id"))
-                                .and(countCars.lt(sumPlaces))))
+                        .and(countCars.lt(sumPlaces)))
                 .orderBy(person.HOUSE_ID)
                 .fetchInto(PersonRecord.class));
     }

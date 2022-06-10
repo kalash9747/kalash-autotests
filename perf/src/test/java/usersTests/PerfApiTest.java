@@ -97,7 +97,7 @@ public class PerfApiTest {
 
             assertEquals(0, expectedMoney.compareTo(actualMoney),
                     "Количество денег должно было уменьшиться на цену автомобиля\n" +
-                            "Expected: " + actualMoney + "\nActual: " + actualMoney);
+                            "Expected: " + expectedMoney + "\nActual: " + actualMoney);
         });
     }
 
@@ -111,7 +111,7 @@ public class PerfApiTest {
     void buyNotElectricCarWithoutFreePlacesInHouse() {
         List<PersonRecord> personRecords = dbExecutor.getUsersWhereCountCarsLessSumPlaces();
         assumeTrue(!personRecords.isEmpty(),
-                "Не удалось найти пользователей живущих в доме без свободных парковочных мест");
+                "Не удалось найти пользователей, живущих в доме без свободных парковочных мест");
 
         PersonRecord person = getRichestPerson(personRecords);
         CarRecord car = getCheapestCarNotEngineTypeId(dbExecutor
